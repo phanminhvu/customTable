@@ -8,77 +8,80 @@ function App() {
 
     const headers = [
         {
-            text: 'Khối lượng',
+            title: 'Khối lượng',
             dataIndex: 'KHOI_LUONG',
             width: 100,
             sort: "number",
             sum: true,
-            filter: true,
+
         },
         {
-            text: 'Khối lượng nhập ',
+            title: 'Khối lượng nhập ',
             dataIndex: 'KL_NHAP',
             width: 100,
         },
         {
-            text: 'Khối lượng tốn dầu',
+            title: 'Khối lượng tốn dầu',
             dataIndex: 'KL_TONDAU',
             width: 100,
         },
 
         {
-            text: 'Khối lượng xuất',
+            title: 'Khối lượng xuất',
             dataIndex: 'KL_XUAT',
             width: 100,
-
+            filter: true,
             sum: true,
 
         },
 
         {
-            text: 'Số lượng nhập',
+            title: 'Số lượng nhập',
             dataIndex: 'SL_NHAP',
             width: 100,
-            sum: true
-
+            sum: true,
+            filter: true
         },
         {
-            text: 'Số tốn dầu',
+            title: 'Số tốn dầu',
             dataIndex: 'SL_TONDAU',
             width: 100,
             sum: true
         },
         {
-            text: 'Số xuất',
+            title: 'Số xuất',
             dataIndex: 'SL_XUAT',
             sort: "number",
             width: 100,
+            filter: true,
 
         },
         {
-            text: 'Mã sản phẩm',
+            title: 'Mã sản phẩm',
             dataIndex: 'MA_SP',
             width: 100,
             filter: true,
         },
         {
-            text: 'Tên sản phẩm',
+            title: 'Tên sản phẩm',
             dataIndex: 'TEN_SP',
             sort: "string",
             width: 100,
             filter: true,
         },
         {
-            text: 'STT',
+            title: 'STT',
             dataIndex: 'STT',
             width: 100,
+            sum: true,
+
 
         },
     ]
 
     return (
         <div className="App">
-            <div id={"customTable"} style={{height: "600px", width: "2000px"}}>
+            <div id={"customTable"}>
                 <TableComponent showIndex = {true} headers={headers} dateType="DD-MM-YYYY" dataUrl={dataUrl}  />
             </div>
         </div>

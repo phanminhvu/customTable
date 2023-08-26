@@ -1,159 +1,69 @@
-import React, {useState, useRef, useEffect} from "react";
-import {Divider, Input, Button, Table, Space, Row, Col, Typography, Card} from 'antd';
+import React, {useState,  useEffect} from "react";
+import {Divider,  Table,  Row, Col, Typography} from 'antd';
 import axios from "axios";
-import {Resizable} from 'react-resizable';
+// import {Resizable} from 'react-resizable';
 import './index.css';
 import ResizableTitle from "./component/ResizableTitle";
 import moment from 'moment';
-import Highlighter from 'react-highlight-words';
-import {SearchOutlined} from '@ant-design/icons';
+
 
 const {Text} = Typography
 
 const TableComponent = (props) => {
     const [tableData, setTableData] = useState([])
     const [columns, setColumns] = useState(props.headers)
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const searchInput = useRef(null);
+
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
 
-    useEffect(() => {
-        const resizeObserver = new ResizeObserver((event) => {
-            // Depending on the layout, you may need to swap inlineSize with blockSize
-            // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserverEntry/contentBoxSize
-            setWidth(event[0].contentBoxSize[0].inlineSize);
-            setHeight(event[0].contentBoxSize[0].blockSize);
-        });
+    const [currentDataSource, setCurrentDataSource] = useState([])
 
-        resizeObserver.observe(document.getElementById("customTable"));
+
+    useEffect(() => {
+        try {
+
+            const observerCallback: ResizeObserverCallback = (entries) => {
+                window.requestAnimationFrame(() => {
+                    if (!Array.isArray(entries) || !entries.length) {
+                        return;
+                    }
+                    setWidth(entries[0].contentBoxSize[0].inlineSize);
+                    setHeight(entries[0].contentBoxSize[0].blockSize);
+                });
+            };
+            const resizeObserver = new ResizeObserver(observerCallback);
+            //
+            //
+            // const resizeObserver = new ResizeObserver((event) => {
+            //     setWidth(event[0].contentBoxSize[0].inlineSize);
+            //     setHeight(event[0].contentBoxSize[0].blockSize);
+            // });
+            resizeObserver.observe(document.getElementById("customTable"));
+        } catch (e) {
+            console.log(e)
+        }
+
     });
 
 
     useEffect(() => {
         didMount()
+
     }, []);
 
 
     useEffect(() => {
-
         if(tableData.length > 0) {
             const cols = setUpCols(columns)
             setColumns(cols)
         }
-
     }, [tableData]);
 
 
+   //  useEffect(() => {
+   // console.log('filteredData', filteredData)
+   //  }, [filteredData]);
 
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-        confirm();
-    };
-    const handleReset = (clearFilters) => {
-        clearFilters();
-        setSearchText('');
-    };
-
-    const getColumnSearchProps = (dataIndex) => ({
-        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters, close}) => (
-            <div
-                style={{
-                    padding: 8,
-                }}
-                onKeyDown={(e) => e.stopPropagation()}
-            >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
-
-
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                        icon={<SearchOutlined/>}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Search
-                    </Button>
-                    <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered) => (
-            <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
-            />
-        ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-
-        },
-        render: (text) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{
-                        backgroundColor: '#ffc069',
-                        padding: 0,
-                    }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                text
-            ),
-    });
     const didMount = async () => {
         try {
             const res = await axios.get(props.dataUrl)
@@ -188,9 +98,10 @@ const TableComponent = (props) => {
         const count = columnss.filter((item) => item.sum).length
         if (props.showIndex && columnss[0].dataIndex !== 'index') {
             cols = [{
-                text: 'STT',
+                title: 'STT',
                 dataIndex: 'index',
                 fixed: 'left',
+                key: 'index',
                 width: 50,
             }].concat(columnss)
         } else {
@@ -221,36 +132,47 @@ const TableComponent = (props) => {
             }
 
             if (item.filter) {
-                cols[index] = {...item, ...getColumnSearchProps(item.dataIndex)}
-            }
+                // cols[index] = {...item, ...getColumnSearchProps(item.dataIndex)}
 
-            let title = null
+                let dataFilter = []
+                tableData.forEach((itemData, index) => {
+                    if (dataFilter.filter(( dataFilterItem) => dataFilterItem.value == itemData[item.dataIndex]).length === 0 && itemData.key !== "sum") {
+                        dataFilter.push(
+                        {
+                            text: itemData[item.dataIndex]?.toString(),
+                            value: itemData[item.dataIndex],
+                        }
+                        )
+                    }
+                })
 
-            if(item.sum ){
-                 title =  <Col>
-                    <Row> <Text strong>{item.text}</Text></Row>
-                    <Divider/>
-                    <Row><Text type="danger">{getSumValue(tableData, item.dataIndex)} </Text></Row>
-                </Col>
-            }
-            else {
-                if(item.key === 0){
-                     title  =  <Col>
-                        <Row> <Text strong>{item.text}</Text></Row>
-                        <Divider/>
-                        <Row><Text type="danger">Tổng</Text></Row>
-                    </Col>
-                }
-                else{
-                  title =  <Col>
-                        <Row> <Text strong>{item.text}</Text></Row>
-                        <Divider/>
-                        <Row></Row>
-                    </Col>
-                }
-            }
+                cols[index] = {...item,
+                    filterMode: 'tree',
+                    filters:dataFilter,
+                    filterSearch: true,
+                    onFilter: (value, record) =>
 
-            item.title = title
+                    {
+                      let checked = false
+                        if(record.key === "sum") {
+                            checked = true
+                        }else {
+                            if(typeof record[item.dataIndex] === "number") {
+                                checked = record[item.dataIndex] === value
+                            } else {
+                                checked = record[item.dataIndex]?.toString().toLowerCase().includes(value.toLowerCase())
+                            }
+                        }
+                    return checked
+                    }
+                       // typeof record[item.dataIndex] === "number" ?
+                       //      record[item.dataIndex] === value
+                       //      : record[item.dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+
+
+                    }
+
+            }
         })
 
         return cols
@@ -266,7 +188,25 @@ const TableComponent = (props) => {
             item.key = index
         })
 
-        return data
+        const headers = props.headers
+        const headerSum = headers.filter((item) => item.sum)
+
+        let summary = [{
+            index: 'Tổng',
+            key: 'sum',
+        }]
+        headerSum.forEach((item) => {
+            summary[0][item.dataIndex] = getSumValue(data, item.dataIndex)
+        })
+
+        const result = summary.concat(data)
+
+
+
+
+        // console.log(props.headers)
+
+        return result
     }
 
     const handleResize = (index) => (e, {size}) => {
@@ -285,7 +225,9 @@ const TableComponent = (props) => {
 
     const onChange = (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
+        setCurrentDataSource(extra.currentDataSource)
     };
+    console.log('currentDataSource', currentDataSource)
 
     return (
         <Table
@@ -300,7 +242,7 @@ const TableComponent = (props) => {
             }))}
 
 
-            nChange={onChange}
+            onChange={onChange}
             scroll={{x: width, y: height}}
             dataSource={tableData}
         />);
