@@ -1,22 +1,156 @@
-import React, {useState,  useEffect} from "react";
-import {Divider,  Table,  Row, Col, Typography} from 'antd';
+import React, {useState, useRef, useEffect} from "react";
+import {
+    // Divider,
+    Table,
+    // Input,Button, Space,  Checkbox,   Row, Col,
+    Typography} from 'antd';
 import axios from "axios";
 // import {Resizable} from 'react-resizable';
 import './index.css';
 import ResizableTitle from "./component/ResizableTitle";
 import moment from 'moment';
-
-
+// import Highlighter from 'react-highlight-words';
+// import { SearchOutlined } from '@ant-design/icons';
 const {Text} = Typography
+
+
+
 
 const TableComponent = (props) => {
     const [tableData, setTableData] = useState([])
     const [columns, setColumns] = useState(props.headers)
-
+    const [filterTableData, setfilterTableData] = useState([])
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
-
+    const [filter, setFilter] = useState({});
     const [currentDataSource, setCurrentDataSource] = useState([])
+
+    // const [searchText, setSearchText] = useState('');
+    // const [searchedColumn, setSearchedColumn] = useState('');
+    // const searchInput = useRef(null);
+    //
+    // const [checkedList, setCheckedList] = useState(defaultCheckedList);
+    // const checkAll = plainOptions.length === checkedList.length;
+    // const indeterminate = checkedList.length > 0 && checkedList.length < plainOptions.length;
+    // const onChangeChecked = (list) => {
+    //     setCheckedList(list);
+    // };
+    // const onCheckAllChange = (e) => {
+    //     console.log(e.target.checked)
+    //     setCheckedList(e.target.checked ? plainOptions : []);
+    // };
+    //
+    // const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    //     confirm();
+    //     setSearchText(selectedKeys[0]);
+    //     setSearchedColumn(dataIndex);
+    // };
+    // const handleReset = (clearFilters) => {
+    //     clearFilters();
+    //     setSearchText('');
+    // };
+    // const getColumnSearchProps = (dataIndex, dataOptions) => ({
+    //     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+    //         <div
+    //             style={{
+    //                 padding: 8,
+    //             }}
+    //             onKeyDown={(e) => e.stopPropagation()}
+    //         >
+    //             <Input
+    //                 ref={searchInput}
+    //                 placeholder={`Search ${dataIndex}`}
+    //                 value={selectedKeys[0]}
+    //                 onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+    //                 onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+    //                 style={{
+    //                     marginBottom: 8,
+    //                     display: 'block',
+    //                 }}
+    //             />
+    //
+    //             <Checkbox  onChange={onCheckAllChange} checked={checkAll}>
+    //                 Check all
+    //             </Checkbox>
+    //             <Divider />
+    //             <CheckboxGroup options={dataOptions} value={checkedList} onChange={onChangeChecked} />
+    //
+    //             <Space>
+    //                 <Button
+    //                     type="primary"
+    //                     onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+    //                     icon={<SearchOutlined />}
+    //                     size="small"
+    //                     style={{
+    //                         width: 90,
+    //                     }}
+    //                 >
+    //                     Search
+    //                 </Button>
+    //                 <Button
+    //                     onClick={() => clearFilters && handleReset(clearFilters)}
+    //                     size="small"
+    //                     style={{
+    //                         width: 90,
+    //                     }}
+    //                 >
+    //                     Reset
+    //                 </Button>
+    //                 <Button
+    //                     type="link"
+    //                     size="small"
+    //                     onClick={() => {
+    //                         confirm({
+    //                             closeDropdown: false,
+    //                         });
+    //                         setSearchText(selectedKeys[0]);
+    //                         setSearchedColumn(dataIndex);
+    //                     }}
+    //                 >
+    //                     Filter
+    //                 </Button>
+    //                 <Button
+    //                     type="link"
+    //                     size="small"
+    //                     onClick={() => {
+    //                         close();
+    //                     }}
+    //                 >
+    //                     close
+    //                 </Button>
+    //             </Space>
+    //         </div>
+    //     ),
+    //     filterIcon: (filtered) => (
+    //         <SearchOutlined
+    //             style={{
+    //                 color: filtered ? '#1677ff' : undefined,
+    //             }}
+    //         />
+    //     ),
+    //     onFilter: (value, record) =>
+    //         record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    //     onFilterDropdownOpenChange: (visible) => {
+    //         if (visible) {
+    //             setTimeout(() => searchInput.current?.select(), 100);
+    //         }
+    //     },
+    //     render: (text) =>
+    //         searchedColumn === dataIndex ? (
+    //             <Highlighter
+    //                 highlightStyle={{
+    //                     backgroundColor: '#ffc069',
+    //                     padding: 0,
+    //                 }}
+    //                 searchWords={[searchText]}
+    //                 autoEscape
+    //                 textToHighlight={text ? text.toString() : ''}
+    //             />
+    //         ) : (
+    //             text
+    //         ),
+    // });
+
 
 
     useEffect(() => {
@@ -60,10 +194,6 @@ const TableComponent = (props) => {
     }, [tableData]);
 
 
-   //  useEffect(() => {
-   // console.log('filteredData', filteredData)
-   //  }, [filteredData]);
-
     const didMount = async () => {
         try {
             const res = await axios.get(props.dataUrl)
@@ -75,6 +205,7 @@ const TableComponent = (props) => {
             }
             data =  setUpTableData(data)
             setTableData(data)
+            setCurrentDataSource(data)
 
         } catch (e) {
             console.log(e)
@@ -110,6 +241,17 @@ const TableComponent = (props) => {
 
         cols.forEach((item, index) => {
 
+            item.children = [
+                {
+                    title: item.key === 'index' ?   <Text type="danger">Tổng</Text>  : item.sum ?
+                        <Text type="danger">{  getSumValue(currentDataSource, item.dataIndex)}</Text>
+                       : '',
+                    dataIndex: item.dataIndex,
+                    width: item.width,
+                }
+            ]
+
+
             if (item.sort) {
                 switch (item.sort) {
                     case 'string':
@@ -134,8 +276,14 @@ const TableComponent = (props) => {
             if (item.filter) {
                 // cols[index] = {...item, ...getColumnSearchProps(item.dataIndex)}
 
+                let plainOptions = []
                 let dataFilter = []
-                tableData.forEach((itemData, index) => {
+
+                let dataLoop = Object.entries(filter).length > 0 ? filterTableData : tableData
+
+                // console.log(dataLoop)
+
+                currentDataSource.forEach((itemData, index) => {
                     if (dataFilter.filter(( dataFilterItem) => dataFilterItem.value == itemData[item.dataIndex]).length === 0 && itemData.key !== "sum") {
                         dataFilter.push(
                         {
@@ -143,10 +291,15 @@ const TableComponent = (props) => {
                             value: itemData[item.dataIndex],
                         }
                         )
+
+                        plainOptions.push(
+                              itemData[item.dataIndex]?.toString(),
+                        )
                     }
                 })
 
                 cols[index] = {...item,
+                    // ...getColumnSearchProps(item.dataIndex, plainOptions),
                     filterMode: 'tree',
                     filters:dataFilter,
                     filterSearch: true,
@@ -188,63 +341,75 @@ const TableComponent = (props) => {
             item.key = index
         })
 
-        const headers = props.headers
-        const headerSum = headers.filter((item) => item.sum)
-
-        let summary = [{
-            index: 'Tổng',
-            key: 'sum',
-        }]
-        headerSum.forEach((item) => {
-            summary[0][item.dataIndex] = getSumValue(data, item.dataIndex)
-        })
-
-        const result = summary.concat(data)
-
-
-
-
+        // const result = addSumaryRow(data)
         // console.log(props.headers)
-
-        return result
+        return data
     }
 
-    const handleResize = (index) => (e, {size}) => {
-        const nextColumns = [...columns];
-        nextColumns[index] = {
-            ...nextColumns[index], width: size.width,
-        };
-        setColumns(nextColumns);
-    };
+    // const addSumaryRow = (data) => {
+    //     const headers = props.headers
+    //     const headerSum = headers.filter((item) => item.sum)
+    //
+    //     let summary = [{
+    //         index: 'Tổng',
+    //         key: 'sum',
+    //     }]
+    //     headerSum.forEach((item) => {
+    //         summary[0][item.dataIndex] = getSumValue(data, item.dataIndex)
+    //     })
+    //
+    //     const result = summary.concat(data)
+    //     return result
+    // }
 
-    const components = {
-        header: {
-            cell: ResizableTitle,
-        },
-    };
+    // const handleResize = (index) => (e, {size}) => {
+    //     const nextColumns = [...columns];
+    //     nextColumns[index] = {
+    //         ...nextColumns[index], width: size.width,
+    //     };
+    //     setColumns(nextColumns);
+    // };
+
+    // const components = {
+    //     header: {
+    //         cell: ResizableTitle,
+    //     },
+    // };
+    //
+    useEffect(() => {
+        // const filterTableData = addSumaryRow(currentDataSource.filter((item) => item.key !== "sum"))
+        setfilterTableData(currentDataSource)
+
+        if(tableData.length > 0) {
+            const cols = setUpCols(columns)
+            setColumns(cols)
+        }
+
+    }, [filter]);
 
     const onChange = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
         setCurrentDataSource(extra.currentDataSource)
+        if(Object.entries(filters).length > 0){
+        setFilter(filters)}
     };
-    console.log('currentDataSource', currentDataSource)
+
 
     return (
         <Table
             bordered
-            components={components}
-            columns={columns.map((col, index) => ({
-                ...col,
-                onHeaderCell: (column) => ({
-                    width: column.width,
-                    onResize: handleResize(index),
-                }),
-            }))}
-
-
+            // components={components}
+            // columns={columns.map((col, index) => ({
+            //     ...col,
+            //     onHeaderCell: (column) => ({
+            //         width: column.width,
+            //         onResize: handleResize(index),
+            //     }),
+            // }))}
+            columns={columns}
             onChange={onChange}
-            scroll={{x: width, y: height}}
+            scroll={{ y: height}}
             dataSource={tableData}
+            pagination={false}
         />);
 }
 

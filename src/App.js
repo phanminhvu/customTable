@@ -53,6 +53,7 @@ function App() {
             dataIndex: 'SL_XUAT',
             sort: "number",
             width: 100,
+            sum: true,
             filter: true,
 
         },
@@ -74,14 +75,12 @@ function App() {
             dataIndex: 'STT',
             width: 100,
             sum: true,
-
-
         },
     ]
 
     return (
         <div className="App">
-            <div id={"customTable"}>
+            <div id={"customTable"} >
                 <TableComponent showIndex = {true} headers={headers} dateType="DD-MM-YYYY" dataUrl={dataUrl}  />
             </div>
         </div>
