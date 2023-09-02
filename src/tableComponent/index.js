@@ -302,27 +302,27 @@ const TableComponent = (props) => {
                 // cols[index] = {...item, ...getColumnSearchProps(item.dataIndex)}
 
 
-                let filterData = []
-
-
-                dataFilter[item.dataIndex].forEach((itemData, index) => filterData.filter((filterDataItem) => filterDataItem.value === itemData.value).length === 0 ?
-                    filterData.push(itemData) : null)
-                currentDataSource.forEach((itemData, index) => {
-                    if (dataFilter.filter((dataFilterItem) =>
-                        dataFilterItem.value == itemData[item.dataIndex]).length === 0 && itemData.key !== "sum") {
-                        dataFilter.push(
-                            {
-                                text: itemData[item.dataIndex]?.toString(),
-                                value: itemData[item.dataIndex],
-                            }
-                        )
-
-                        // plainOptions.push(
-                        //     itemData[item.dataIndex]?.toString(),
-                        // )
-                    }
-                })
-                let filteredValue = filterData.map((itemData, index) => itemData.value)
+                // let filterData = []
+                //
+                //
+                // dataFilter[item.dataIndex].forEach((itemData, index) => filterData.filter((filterDataItem) => filterDataItem.value === itemData.value).length === 0 ?
+                //     filterData.push(itemData) : null)
+                // // currentDataSource.forEach((itemData, index) => {
+                // //     if (dataFilter.filter((dataFilterItem) =>
+                // //         dataFilterItem.value == itemData[item.dataIndex]).length === 0 && itemData.key !== "sum") {
+                // //         dataFilter.push(
+                // //             {
+                // //                 text: itemData[item.dataIndex]?.toString(),
+                // //                 value: itemData[item.dataIndex],
+                // //             }
+                // //         )
+                // //
+                // //         plainOptions.push(
+                // //             itemData[item.dataIndex]?.toString(),
+                // //         )
+                // //     }
+                // // })
+                // let filteredValue = filterData.map((itemData, index) => itemData.value)
                 let dataFilter = []
                 currentDataSource.forEach((itemData, index) => {
                     if (!dataFilter.includes(itemData[item.dataIndex])) {
@@ -331,31 +331,27 @@ const TableComponent = (props) => {
                 })
                 cols[index] = {
                     ...item,
-                    // ...getColumnSearchProps(item.dataIndex, dataFilter),
-                    filterMode: 'tree',
-                    filters: dataFilter[item.dataIndex],
-                    defaultFilteredValue: filteredValue,
-                    filterSearch: (input, record) => {
-                        return record.title.toString().toLowerCase().includes(input.toLowerCase())
-                    },
-
-                    onFilter: (value, record) => {
-                        let checked = false
-                        if (record.key === "sum") {
-                            checked = true
-                        } else {
-                            if (typeof record[item.dataIndex] === "number") {
-                                checked = record[item.dataIndex] === value
-                            } else {
-                                checked = record[item.dataIndex]?.toString().toLowerCase().includes(value.toLowerCase())
-                            }
-                        }
-                        return checked
-                    },
-
-                    // typeof record[item.dataIndex] === "number" ?
-                    //      record[item.dataIndex] === value
-                    //      : record[item.dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+                    ...getColumnSearchProps(item.dataIndex, dataFilter),
+                    // filterMode: 'tree',
+                    // filters: dataFilter[item.dataIndex],
+                    // defaultFilteredValue: filteredValue,
+                    // filterSearch: (input, record) => {
+                    //     return record.title.toString().toLowerCase().includes(input.toLowerCase())
+                    // },
+                    //
+                    // onFilter: (value, record) => {
+                    //     let checked = false
+                    //     if (record.key === "sum") {
+                    //         checked = true
+                    //     } else {
+                    //         if (typeof record[item.dataIndex] === "number") {
+                    //             checked = record[item.dataIndex] === value
+                    //         } else {
+                    //             checked = record[item.dataIndex]?.toString().toLowerCase().includes(value.toLowerCase())
+                    //         }
+                    //     }
+                    //     return checked
+                    // },
 
                 }
 
