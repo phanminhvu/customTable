@@ -1,8 +1,8 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, {useState, useRef,useCallback, useEffect} from "react";
 import {
     Row, Col,
     Form,
-    // Divider,
+
     Table,
     Input, Button, Space, Checkbox,
     Typography, Divider
@@ -10,6 +10,7 @@ import {
 import axios from "axios";
 // import {Resizable} from 'react-resizable';
 import './index.css';
+import FilterTable from "./FilterTable";
 import ResizableTitle from "./component/ResizableTitle";
 import moment from 'moment';
 import Highlighter from 'react-highlight-words';
@@ -27,136 +28,6 @@ const TableComponent = (props) => {
     const [currentDataSource, setCurrentDataSource] = useState({})
 
     const [dataFilter, setDataFitler] = useState([])
-    const [checkedList, setCheckedList] = useState([])
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const searchInput = useRef(null);
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-    };
-    const handleReset = (clearFilters) => {
-        clearFilters();
-        setSearchText('');
-    };
-
-    function onChecked(checkedValues) {
-        console.log('checked = ', checkedValues);
-    }
-
-    const getColumnSearchProps = (dataIndex, checkboxOptions) => ({
-        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters, close}) => (
-            <div
-                style={{
-                    padding: 8,
-                }}
-                onKeyDown={(e) => e.stopPropagation()}
-            >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
-
-                <Divider/>
-
-                <Checkbox onChange={onChecked} value='a'>Select All</Checkbox>
-
-                <Form style={{paddingLeft: "15px"}}>
-                    <Form.Item  style={{ paddingTop: "5px"}}>
-                        <Checkbox.Group onChange={onChecked} >
-                            <Col>    {checkboxOptions.map((item) => (
-                                <Row><Checkbox value={item}>{item}</Checkbox></Row>
-                            ))}</Col>
-                        </Checkbox.Group>
-                    </Form.Item>
-                </Form>
-                <Divider/>
-
-
-                {/*<CheckboxGroup options={checkboxOptions} value={checkedList} onChange={onChange} />*/}
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                        icon={<SearchOutlined/>}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Search
-                    </Button>
-                    <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Reset
-                    </Button>
-                    {/*<Button*/}
-                    {/*    type="link"*/}
-                    {/*    size="small"*/}
-                    {/*    onClick={() => {*/}
-                    {/*        confirm({*/}
-                    {/*            closeDropdown: false,*/}
-                    {/*        });*/}
-                    {/*        setSearchText(selectedKeys[0]);*/}
-                    {/*        setSearchedColumn(dataIndex);*/}
-                    {/*    }}*/}
-                    {/*>*/}
-                    {/*    Filter*/}
-                    {/*</Button>*/}
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered) => (
-            <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
-            />
-        ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-        },
-        render: (text) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{
-                        backgroundColor: '#ffc069',
-                        padding: 0,
-                    }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                text
-            ),
-    });
 
     useEffect(() => {
         didMount()
@@ -220,6 +91,8 @@ const TableComponent = (props) => {
             console.log(e)
         }
     }
+
+
 
 
     const setUpDataFilter = (data) => {
@@ -331,7 +204,7 @@ const TableComponent = (props) => {
                 })
                 cols[index] = {
                     ...item,
-                    ...getColumnSearchProps(item.dataIndex, dataFilter),
+
                     // filterMode: 'tree',
                     // filters: dataFilter[item.dataIndex],
                     // defaultFilteredValue: filteredValue,
@@ -413,9 +286,13 @@ const TableComponent = (props) => {
         if (tableData.length > 0) {
             const cols = setUpCols(columns)
             setColumns(cols)
+
+        console.log('filter', filter)
         }
 
+
     }, [filter]);
+
 
     const onChange = (pagination, filters, sorter, extra) => {
         setCurrentDataSource(extra.currentDataSource)
@@ -425,6 +302,41 @@ const TableComponent = (props) => {
         }
     };
 
+
+    const [state, setState] = useState({});
+
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setState({ ...state, [dataIndex]: selectedKeys });
+    };
+
+    const handleReset = (clearFilters, dataIndex) => {
+        clearFilters();
+        setState({ ...state, [dataIndex]: [] });
+    };
+
+    const options = useCallback(
+        (col) => {
+            const result = props.tableData
+                .filter((item) => {
+                    const cloneState = { ...state };
+                    delete cloneState[col.dataIndex];
+                    let checkItem = true;
+                    Object.keys(cloneState).forEach((s) => {
+                        if (cloneState[s].length && !cloneState[s]?.includes(item[s])) {
+                            checkItem = false;
+                        }
+                    });
+
+                    return checkItem;
+                })
+                .map((record) => record[col.dataIndex])
+                .filter((value, index, self) => self.indexOf(value) === index);
+            return result;
+        },
+
+        [state]
+    );
 
     return (
         <Table
@@ -439,9 +351,53 @@ const TableComponent = (props) => {
             className='Table-List'
             scroll={{y: 'calc(100vh - 250px)'}}
             size='small'
-            columns={columns}
+            columns={columns.map((col) => {
+                if (!col.filterDropdown) return col;
+                return {
+                    ...col,
+                    filterDropdown: ({
+                                         setSelectedKeys,
+                                         selectedKeys,
+                                         confirm,
+                                         clearFilters,
+                                     }) => {
+                        return (
+                            <div style={{ padding: 8 }}>
+                                {
+                                    <FilterTable
+                                        handleSearch={() =>
+                                            handleSearch(selectedKeys, confirm, col.dataIndex)
+                                        }
+                                        handleReset={() =>
+                                            handleReset(clearFilters, col.dataIndex)
+                                        }
+                                        setSelectedKeys={setSelectedKeys}
+                                        options={options(col)}
+                                    />
+                                }
+                            </div>
+                        );
+                    },
+                    onFilter: (value, record) => {
+                        if (typeof value === "string") {
+                            return record[col.dataIndex]
+                                .toLowerCase()
+                                .includes(value.toLowerCase());
+                        }
+                        if (!Number.isNaN(record[col.dataIndex])) {
+                            return record[col.dataIndex] === parseInt(value, 10);
+                        }
+                    },
+                    filterIcon: (filtered) => (
+                        <SearchOutlined
+                            style={{ color: filtered ? "#1890ff" : undefined }}
+                        />
+                    ),
+                };
+            })}
             onChange={onChange}
             dataSource={tableData}
+
             pagination={false}
         />);
 
