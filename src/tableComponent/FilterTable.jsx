@@ -74,7 +74,7 @@ const FilterTable = (props) => {
           >
             Select All
           </Checkbox>
-          <div style={{ maxHeight: 300, overflow: "scroll" }}>
+          <div style={{ maxHeight: 300, overflowY: "scroll" }}>
             <CheckboxGroup
                 style={{
                   display: "flex",
@@ -95,7 +95,7 @@ const FilterTable = (props) => {
               size="small"
               style={{ width: 90 }}
           >
-            Search
+            Filter
           </Button>
           <Button onClick={onReset} size="small" style={{ width: 90 }}>
             Reset

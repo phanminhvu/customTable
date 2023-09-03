@@ -14,7 +14,7 @@ import FilterTable from "./FilterTable";
 import ResizableTitle from "./component/ResizableTitle";
 import moment from 'moment';
 import Highlighter from 'react-highlight-words';
-import {SearchOutlined} from '@ant-design/icons';
+import {FilterOutlined} from '@ant-design/icons';
 
 const {Text} = Typography
 const CheckboxGroup = Checkbox.Group;
@@ -389,7 +389,7 @@ const TableComponent = (props) => {
                         }
                     },
                     filterIcon: (filtered) => (
-                        <SearchOutlined
+                        <FilterOutlined
                             style={{ color: filtered ? "#1890ff" : undefined }}
                         />
                     ),
