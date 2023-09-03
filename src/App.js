@@ -30,7 +30,7 @@ function App() {
             title: 'Khối lượng xuất',
             dataIndex: 'KL_XUAT',
             width: 100,
-            filter: true,
+            filterDropdown: true,
             sum: true,
 
         },
@@ -40,7 +40,7 @@ function App() {
             dataIndex: 'SL_NHAP',
             width: 100,
             sum: true,
-            filter: true
+            filterDropdown: true
         },
         {
             title: 'Số tốn dầu',
@@ -54,21 +54,21 @@ function App() {
             sort: "number",
             width: 100,
             sum: true,
-            filter: true,
+            filterDropdown: true,
 
         },
         {
             title: 'Mã sản phẩm',
             dataIndex: 'MA_SP',
             width: 100,
-            filter: true,
+            filterDropdown: true,
         },
         {
             title: 'Tên sản phẩm',
             dataIndex: 'TEN_SP',
             sort: "string",
             width: 100,
-            filter: true,
+            filterDropdown: true,
         },
         {
             title: 'STT',
