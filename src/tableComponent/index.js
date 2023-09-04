@@ -403,7 +403,9 @@ const TableComponent = (props) => {
             dataSource={tableData}
             onRow={(record, rowIndex) => {
                 return {
-                    onClick: event => {props.onClickRow(record, rowIndex)}, // click row
+                    onClick: event => { if(props.onClickRow){props.onClickRow(record, rowIndex)}
+
+                    }, // click row
                 };
             }}
             pagination={false}
