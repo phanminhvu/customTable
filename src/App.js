@@ -32,9 +32,7 @@ function App() {
             width: 100,
             filterDropdown: true,
             sum: true,
-
         },
-
         {
             title: 'Số lượng nhập',
             dataIndex: 'SL_NHAP',
@@ -671,10 +669,18 @@ function App() {
         "totalCount": 45
     }
 
+    const onlickRow = (record, rowIndex) => { console.log(record, rowIndex)}
+
     return (
         <div className="App">
-            <div id={"customTable"} >
-                <TableComponent showIndex = {true} headers={headers} dateType="DD-MM-YYYY" dataUrl={dataUrl}  tableData={tableData.data} />
+            <div id={"customTable"}>
+                <TableComponent showIndex={true}
+                                headers={headers}
+                                dateType="DD-MM-YYYY"
+                                dataUrl={dataUrl}
+                                tableData={tableData.data}
+                                onClickRow = {onlickRow}
+                />
             </div>
         </div>
     );

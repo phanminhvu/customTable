@@ -146,8 +146,12 @@ const TableComponent = (props) => {
                     title: item.key === 'index' ? <Text type="danger">Total</Text> : item.sum ?
                         <Text type="danger">{getSumValue(currentDataSource, item.dataIndex)}</Text>
                         : '',
+                    align :  typeof tableData[0][item.dataIndex] === 'number' ? 'right' : 'left',
                     dataIndex: item.dataIndex,
                     width: item.width,
+                    render : (text, record) => {
+                        return typeof record[item.dataIndex] === 'number' ? record[item.dataIndex].toLocaleString('US') : record[item.dataIndex]
+                    }
                 }
             ]
             if (item.sort) {
@@ -397,7 +401,11 @@ const TableComponent = (props) => {
             })}
             onChange={onChange}
             dataSource={tableData}
-
+            onRow={(record, rowIndex) => {
+                return {
+                    onClick: event => {props.onClickRow(record, rowIndex)}, // click row
+                };
+            }}
             pagination={false}
         />);
 
