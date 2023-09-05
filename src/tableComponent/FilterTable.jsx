@@ -84,7 +84,7 @@ const FilterTable = (props) => {
           >
             Select All
           </Checkbox>
-          <div style={{ maxHeight: 300, overflow: "scroll" }}>
+          <div style={{ maxHeight: 300, overflow: "auto" }}>
             <CheckboxGroup
                 style={{
                   display: "flex",
