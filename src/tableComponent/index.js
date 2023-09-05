@@ -11,9 +11,9 @@ import axios from "axios";
 // import {Resizable} from 'react-resizable';
 import './index.css';
 import FilterTable from "./FilterTable";
-import ResizableTitle from "./component/ResizableTitle";
+// import ResizableTitle from "./component/ResizableTitle";
 import moment from 'moment';
-import Highlighter from 'react-highlight-words';
+// import Highlighter from 'react-highlight-words';
 import {FilterOutlined} from '@ant-design/icons';
 
 const {Text} = Typography
@@ -21,9 +21,6 @@ const CheckboxGroup = Checkbox.Group;
 const TableComponent = (props) => {
     const [tableData, setTableData] = useState([])
     const [columns, setColumns] = useState(props.headers)
-    // const [filterTableData, setfilterTableData] = useState([])
-    // const [width, setWidth] = useState(0);
-    // const [height, setHeight] = useState(0);
     const [filter, setFilter] = useState({});
     const [currentDataSource, setCurrentDataSource] = useState({})
 
@@ -121,8 +118,9 @@ const TableComponent = (props) => {
         data.forEach((itemData, index) => {
             sum += itemData[dataIndex]
         })
-        return sum.toFixed(3);
+        return sum.toLocaleString('US');
     }
+
 
     const setUpCols = (columns) => {
         let cols = []
@@ -291,7 +289,6 @@ const TableComponent = (props) => {
             const cols = setUpCols(columns)
             setColumns(cols)
 
-        console.log('filter', filter)
         }
 
 
@@ -305,7 +302,6 @@ const TableComponent = (props) => {
             setFilter(filters)
         }
     };
-
 
     const [state, setState] = useState({});
 
@@ -324,7 +320,7 @@ const TableComponent = (props) => {
             const result = props.tableData
                 .filter((item) => {
                     const cloneState = { ...state };
-                    delete cloneState[col.dataIndex];
+                    // delete cloneState[col.dataIndex];
                     let checkItem = true;
                     Object.keys(cloneState).forEach((s) => {
                         if (cloneState[s].length && !cloneState[s]?.includes(item[s])) {
@@ -389,7 +385,8 @@ const TableComponent = (props) => {
                                 .includes(value.toLowerCase());
                         }
                         if (!Number.isNaN(record[col.dataIndex])) {
-                            return record[col.dataIndex] === parseInt(value, 10);
+                            console.log(record[col.dataIndex], value)
+                            return record[col.dataIndex] === value;
                         }
                     },
                     filterIcon: (filtered) => (
@@ -399,6 +396,7 @@ const TableComponent = (props) => {
                     ),
                 };
             })}
+
             onChange={onChange}
             dataSource={tableData}
             onRow={(record, rowIndex) => {

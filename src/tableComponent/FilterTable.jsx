@@ -1,7 +1,7 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Space } from "antd";
 import Input from "antd/es/input/Input";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 const CheckboxGroup = Checkbox.Group;
 const FilterTable = (props) => {
   // eslint-disable-next-line react/prop-types
@@ -13,7 +13,14 @@ const FilterTable = (props) => {
   const [selectedValues, setSelectedValues] = useState(options);
 
   let timeoutId;
-
+  useEffect(() => {
+    if (!inputValue) {
+      setOption(options);
+    }
+    if (selectAll) {
+      setSelectedValues(options);
+    }
+  }, [inputValue, options, selectAll]);
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
@@ -23,10 +30,13 @@ const FilterTable = (props) => {
 
     timeoutId = setTimeout(() => {
       let newOptions = optionsDefault.filter((i) => {
-        if (Number.isNaN(value)) {
+        if (typeof i === "string") {
           return i.toLowerCase().includes(value.toLowerCase());
         }
-        return i.toString().includes(value.toString());
+        if (!Number.isNaN(value)) {
+          return i.toString().includes(value.toString());
+        }
+        return;
       });
       if (!value) {
         newOptions = optionsDefault;
@@ -74,7 +84,7 @@ const FilterTable = (props) => {
           >
             Select All
           </Checkbox>
-          <div style={{ maxHeight: 300, overflowY: "scroll" }}>
+          <div style={{ maxHeight: 300, overflow: "scroll" }}>
             <CheckboxGroup
                 style={{
                   display: "flex",
@@ -95,7 +105,7 @@ const FilterTable = (props) => {
               size="small"
               style={{ width: 90 }}
           >
-            Filter
+            Search
           </Button>
           <Button onClick={onReset} size="small" style={{ width: 90 }}>
             Reset
