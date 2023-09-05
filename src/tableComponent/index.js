@@ -324,7 +324,15 @@ const TableComponent = (props) => {
                     let checkItem = true;
                     Object.keys(cloneState).forEach((s) => {
                         if (cloneState[s].length && !cloneState[s]?.includes(item[s])) {
-                            checkItem = false;
+                            if (col.dataIndex === s) {
+                                if (!cloneState[s]?.includes(item[s])) {
+                                    checkItem = false;
+                                }
+                            } else {
+                                if (!item[s].includes(cloneState[s])) {
+                                    checkItem = false;
+                                }
+                            }
                         }
                     });
 
