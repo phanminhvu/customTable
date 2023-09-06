@@ -10,7 +10,9 @@ const FilterTable = (props) => {
   const [optionsDefault] = useState(options);
   const [option, setOption] = useState(options);
   const [selectAll, setSelectAll] = useState(true);
-  const [selectedValues, setSelectedValues] = useState(options);
+  const [selectedValues, setSelectedValues] = useState(
+      options.map((i) => i.value)
+  );
 
   let timeoutId;
   useEffect(() => {
@@ -18,7 +20,7 @@ const FilterTable = (props) => {
       setOption(options);
     }
     if (selectAll) {
-      setSelectedValues(options);
+      setSelectedValues(options.map((i) => i.value));
     }
   }, [inputValue, options, selectAll]);
   const handleInputChange = (e) => {
@@ -31,10 +33,10 @@ const FilterTable = (props) => {
     timeoutId = setTimeout(() => {
       let newOptions = optionsDefault.filter((i) => {
         if (typeof i === "string") {
-          return i.toLowerCase().includes(value.toLowerCase());
+          return i?.toLowerCase().includes(value?.value?.toLowerCase());
         }
-        if (!Number.isNaN(value)) {
-          return i.toString().includes(value.toString());
+        if (!Number.isNaN(value.value)) {
+          return i.toString().includes(value.value?.toString());
         }
         return;
       });
@@ -84,7 +86,7 @@ const FilterTable = (props) => {
           >
             Select All
           </Checkbox>
-          <div style={{ maxHeight: 300, overflow: "scroll" }}>
+          <div style={{ maxHeight: 300, overflowY: "auto" }}>
             <CheckboxGroup
                 style={{
                   display: "flex",

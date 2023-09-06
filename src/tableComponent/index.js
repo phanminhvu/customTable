@@ -1,4 +1,4 @@
-import React, {useState, useRef,useCallback, useEffect} from "react";
+import React, {useState, useMemo, useRef,useCallback, useEffect} from "react";
 import {
     Row, Col,
     Form,
@@ -317,10 +317,35 @@ const TableComponent = (props) => {
         }
     };
     const [state, setState] = useState({});
-
+    const cols = useMemo(() => {
+        return columns.map((col) => {
+            if (col.dateType) {
+                return {
+                    ...col,
+                    children : [
+                        {
+                            title: '',
+                            align : 'left',
+                            dataIndex: col.dataIndex,
+                            width: col.width,
+                            render(_, record) {
+                                return (
+                                    <span>
+                {record[col.dataIndex]
+                    ? moment(record[col.dataIndex]).format(col.dateType)
+                    : null}
+              </span>
+                                );
+                            },
+                        }
+                    ]
+                };
+            }
+            return col;
+        });
+    }, []);
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
-        console.log(selectedKeys)
         setState({ ...state, [dataIndex]: selectedKeys });
     };
 
@@ -328,7 +353,6 @@ const TableComponent = (props) => {
         clearFilters();
         setState({ ...state, [dataIndex]: [] });
     };
-
     const options = useCallback(
         (col) => {
             const result = props.tableData
@@ -337,49 +361,29 @@ const TableComponent = (props) => {
                     // delete cloneState[col.dataIndex];
                     let checkItem = true;
                     Object.keys(cloneState).forEach((s) => {
-                        if(col.dateType ){
-
-                            if(cloneState[s].length && !cloneState[s]?.includes(moment(item[s], dateTypeInput).format( col.dateType)))
-                            {  checkItem = false}
-                        } else
                         if (cloneState[s].length && !cloneState[s]?.includes(item[s])) {
-
-
                             checkItem = false;
-                            // if (col.dataIndex === s) {
-                            //     if (!cloneState[s]?.includes(item[s])) {
-                            //         checkItem = false;
-                            //     }
-                            //
-                            // } else {
-                            //     if (!item[s]?.includes(cloneState[s])) {
-                            //         checkItem = false;
-                            //     }
-                            // }
-
                         }
                     });
-
                     return checkItem;
                 })
-                .map((record) =>
-
-                    col.dateType ? moment(record[col.dataIndex], dateTypeInput).format( col.dateType) :
-
-                    record[col.dataIndex])
-                .filter((value, index, self) =>
-                {
-                return      self.indexOf(value) === index
-                }
-
-                   );
-            console.log(result)
+                .map((record) => {
+                    return {
+                        value: record[col.dataIndex],
+                        label: col.dateType
+                            ? moment(record[col.dataIndex]).format(col.dateType)
+                            : record[col.dataIndex],
+                    };
+                })
+                .filter((value, index, self) => {
+                    const indexFound = self.findIndex((i) => i.value === value.value);
+                    return indexFound === index;
+                });
             return result;
         },
 
         [state]
     );
-
     return (
         <Table
             // components={components}
@@ -393,7 +397,7 @@ const TableComponent = (props) => {
             className='Table-List'
             scroll={{y: 'calc(100vh - 250px)'}}
             size='small'
-            columns={columns.map((col) => {
+            columns={cols.map((col) => {
                 if (!col.filterDropdown) return col;
                 return {
                     ...col,
@@ -422,20 +426,12 @@ const TableComponent = (props) => {
                     },
                     onFilter: (value, record) => {
                         if (typeof value === "string") {
-                            if(col.dateType) {
 
-                                return moment(record[col.dataIndex], dateTypeInput).format( col.dateType)
-                                    .toLowerCase()
-                                    .includes(value.toLowerCase());
-                            }else {
-                                return record[col.dataIndex]
-                                    .toLowerCase()
-                                    .includes(value.toLowerCase());
-                            }
-
+                            return record[col.dataIndex]?.toLowerCase()
+                                .includes(value?.toLowerCase());
                         }
                         if (!Number.isNaN(record[col.dataIndex])) {
-                            return record[col.dataIndex] === value;
+                            return record[col.dataIndex] === parseInt(value, 10);
                         }
                     },
                     filterIcon: (filtered) => (

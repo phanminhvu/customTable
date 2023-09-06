@@ -60,7 +60,7 @@ function App() {
         {
             title: 'Số lượng nhập',
             dataIndex: 'SL_NHAP',
-            dateType: "DD-MM-YYYY",
+            dateType: "DD-MM-YYYY HH:mm",
             sort: "date",
             width: 100,
             filterDropdown: true
@@ -357,7 +357,7 @@ function App() {
                 "TEN_SP": "THỊT CỐT LẾT HEO CÓ XƯƠNG FRIMESA BRASIL 25KG - PORK BONE IN LOIN WITHOUT FILLET",
                 "SL_TONDAU": 0,
                 "KL_TONDAU": 0,
-                "SL_NHAP": 1080,
+                "SL_NHAP":  generateRandomDate(),
                 "KL_NHAP": 27000,
                 "SL_XUAT": 0,
                 "KL_XUAT": 0,
@@ -591,7 +591,7 @@ function App() {
                 "TEN_SP": "CÁNH GÀ KHÚC GIỮA LOẠI A MASTER GOOD HUNGARY 10KG - FROZEN CHICKEN MID JOINT WINGS \"A\" GRADE",
                 "SL_TONDAU": 4,
                 "KL_TONDAU": 31,
-                "SL_NHAP": 2,
+                "SL_NHAP":  generateRandomDate(),
                 "KL_NHAP": 20,
                 "SL_XUAT": 4,
                 "KL_XUAT": 31,
