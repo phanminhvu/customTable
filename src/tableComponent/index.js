@@ -15,7 +15,7 @@ import FilterTable from "./FilterTable";
 import moment from 'moment';
 // import Highlighter from 'react-highlight-words';
 import {FilterOutlined} from '@ant-design/icons';
-
+const  dateTypeInput= "YYYY-MM-DDTHH:mm:ss.SSSZ"
 const {Text} = Typography
 const CheckboxGroup = Checkbox.Group;
 const TableComponent = (props) => {
@@ -148,7 +148,20 @@ const TableComponent = (props) => {
                     dataIndex: item.dataIndex,
                     width: item.width,
                     render : (text, record) => {
-                        return typeof record[item.dataIndex] === 'number' ? record[item.dataIndex].toLocaleString('US') : record[item.dataIndex]
+                            let value  = null
+                        if (typeof record[item.dataIndex] === 'number') {
+                            value = record[item.dataIndex].toLocaleString('US')
+                        }else if(typeof record[item.dataIndex] === 'string'){
+                            if(moment(record[item.dataIndex], dateTypeInput).isValid()){
+                                value = moment(record[item.dataIndex], dateTypeInput).format(item.dateType)
+                        }else {
+                                value = record[item.dataIndex]
+                            }
+
+                        }
+
+
+                        return value
                     }
                 }
             ]
@@ -161,9 +174,10 @@ const TableComponent = (props) => {
                         item.sorter = (a, b) => a[item.dataIndex] - b[item.dataIndex]
                         break
                     case 'date':
-                        item.sorter = {
-                            compare: (a, b) =>
-                                moment(a.Date, props.dateType) - moment(b.Date, props.dateType),
+                        item.sorter = (a, b) => {
+                            const dateA = moment( a[item.dataIndex], 'YYYY-MM-DDTHH:mm:ss.SSSZ');
+                            const dateB = moment(b[item.dataIndex], 'YYYY-MM-DDTHH:mm:ss.SSSZ');
+                            return dateA - dateB;
                         }
                         break
                     default:
@@ -302,7 +316,6 @@ const TableComponent = (props) => {
             setFilter(filters)
         }
     };
-
     const [state, setState] = useState({});
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -324,27 +337,21 @@ const TableComponent = (props) => {
                     let checkItem = true;
                     Object.keys(cloneState).forEach((s) => {
                         if (cloneState[s].length && !cloneState[s]?.includes(item[s])) {
-                            if (col.dataIndex === s) {
-                                if (!cloneState[s]?.includes(item[s])) {
-                                    checkItem = false;
-                                }
-                            } else {
-                                if (!item[s].includes(cloneState[s])) {
-                                    checkItem = false;
-                                }
-                            }
+                            checkItem = false;
                         }
                     });
 
                     return checkItem;
                 })
-                .map((record) => record[col.dataIndex])
-                .filter((value, index, self) => self.indexOf(value) === index);
-            return result;
+                ?.map((record) => record[col.dataIndex])
+                ?.filter((value, index, self) => self.indexOf(value) === index);
+            console.log(`[Debug - result]:`, result);
+            return result?.filter((i) => !!i);
         },
 
         [state]
     );
+
 
     return (
         <Table
@@ -389,11 +396,10 @@ const TableComponent = (props) => {
                     onFilter: (value, record) => {
                         if (typeof value === "string") {
                             return record[col.dataIndex]
-                                .toLowerCase()
-                                .includes(value.toLowerCase());
+                                ?.toLowerCase()
+                                ?.includes(value?.toLowerCase());
                         }
                         if (!Number.isNaN(record[col.dataIndex])) {
-                            console.log(record[col.dataIndex], value)
                             return record[col.dataIndex] === value;
                         }
                     },

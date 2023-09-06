@@ -31,7 +31,7 @@ const FilterTable = (props) => {
     timeoutId = setTimeout(() => {
       let newOptions = optionsDefault.filter((i) => {
         if (typeof i === "string") {
-          return i.toLowerCase().includes(value.toLowerCase());
+          return i?.toLowerCase()?.includes(value?.toLowerCase());
         }
         if (!Number.isNaN(value)) {
           return i.toString().includes(value.toString());
@@ -84,7 +84,7 @@ const FilterTable = (props) => {
           >
             Select All
           </Checkbox>
-          <div style={{ maxHeight: 300, overflow: "auto" }}>
+          <div style={{ maxHeight: 300, overflow: "scroll" }}>
             <CheckboxGroup
                 style={{
                   display: "flex",
