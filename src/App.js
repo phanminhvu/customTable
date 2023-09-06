@@ -60,7 +60,7 @@ function App() {
         {
             title: 'Số lượng nhập',
             dataIndex: 'SL_NHAP',
-            dateType: "DD-MM-YYYY HH:mm",
+            dateType: "DD-MM-YYYY",
             sort: "date",
             width: 100,
             filterDropdown: true

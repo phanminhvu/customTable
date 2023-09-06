@@ -82,7 +82,6 @@ const TableComponent = (props) => {
             setCurrentDataSource(data)
 
             const dataFitler = setUpDataFilter(data)
-
             setDataFitler(dataFitler)
         } catch (e) {
             console.log(e)
@@ -114,12 +113,13 @@ const TableComponent = (props) => {
     }
 
     const getSumValue = (data, dataIndex) => {
+        if(data.length > 0){
         let sum = 0
         data.forEach((itemData, index) => {
             sum += itemData[dataIndex]
         })
         return sum.toLocaleString('US');
-    }
+    }}
 
 
     const setUpCols = (columns) => {
@@ -139,12 +139,13 @@ const TableComponent = (props) => {
         }
 
         cols.forEach((item, index) => {
+
             item.children = [
                 {
                     title: item.key === 'index' ? <Text type="danger">Total</Text> : item.sum ?
                         <Text type="danger">{getSumValue(currentDataSource, item.dataIndex)}</Text>
                         : '',
-                    align :  typeof tableData[0][item.dataIndex] === 'number' ? 'right' : 'left',
+                    align :  tableData.length > 0  &&  typeof tableData[0][item.dataIndex] === 'number' ? 'right' : 'left',
                     dataIndex: item.dataIndex,
                     width: item.width,
                     render : (text, record) => {
@@ -181,7 +182,9 @@ const TableComponent = (props) => {
                         }
                         break
                     default:
+
                         break
+
                 }
             }
 
@@ -300,7 +303,10 @@ const TableComponent = (props) => {
         if (tableData.length > 0) {
             const cols = setUpCols(columns)
             setColumns(cols)
+
         }
+
+
     }, [filter]);
 
 
@@ -313,31 +319,7 @@ const TableComponent = (props) => {
     };
     const [state, setState] = useState({});
     const cols = useMemo(() => {
-
-        const columnss = [...columns]
-        let colss = []
-        if (props.showIndex && columnss[0].dataIndex !== 'index') {
-            colss = [{
-                title: 'STT',
-                dataIndex: 'index',
-                fixed: 'left',
-                key: 'index',
-                width: 50,
-                children : [
-                    {
-                        title: <Text type="danger">Total</Text>,
-                        align : 'left',
-                        dataIndex: 'index',
-                        width: 50,
-                    }
-                ]
-            }].concat(columnss)
-        } else {
-            colss = columnss
-        }
-
-
-        return colss.map((col) => {
+        return   setUpCols(columns).map((col) => {
             if (col.dateType) {
                 return {
                     ...col,
@@ -360,8 +342,10 @@ const TableComponent = (props) => {
                     ]
                 };
             }
+
             return col;
         });
+
     }, []);
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -416,7 +400,7 @@ const TableComponent = (props) => {
             className='Table-List'
             scroll={{y: 'calc(100vh - 250px)'}}
             size='small'
-            columns={cols.map((col) => {
+            columns={setUpCols(cols).map((col) => {
                 if (!col.filterDropdown) return col;
                 return {
                     ...col,
