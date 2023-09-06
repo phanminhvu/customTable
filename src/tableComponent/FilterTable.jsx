@@ -31,7 +31,7 @@ const FilterTable = (props) => {
     timeoutId = setTimeout(() => {
       let newOptions = optionsDefault.filter((i) => {
         if (typeof i === "string") {
-          return i?.toLowerCase()?.includes(value?.toLowerCase());
+          return i.toLowerCase().includes(value.toLowerCase());
         }
         if (!Number.isNaN(value)) {
           return i.toString().includes(value.toString());

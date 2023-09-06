@@ -152,7 +152,7 @@ const TableComponent = (props) => {
                         if (typeof record[item.dataIndex] === 'number') {
                             value = record[item.dataIndex].toLocaleString('US')
                         }else if(typeof record[item.dataIndex] === 'string'){
-                            if(moment(record[item.dataIndex], dateTypeInput).isValid()){
+                            if(item.dateType){
                                 value = moment(record[item.dataIndex], dateTypeInput).format(item.dateType)
                         }else {
                                 value = record[item.dataIndex]
@@ -320,6 +320,7 @@ const TableComponent = (props) => {
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
+        console.log(selectedKeys)
         setState({ ...state, [dataIndex]: selectedKeys });
     };
 
@@ -336,22 +337,48 @@ const TableComponent = (props) => {
                     // delete cloneState[col.dataIndex];
                     let checkItem = true;
                     Object.keys(cloneState).forEach((s) => {
+                        if(col.dateType ){
+
+                            if(cloneState[s].length && !cloneState[s]?.includes(moment(item[s], dateTypeInput).format( col.dateType)))
+                            {  checkItem = false}
+                        } else
                         if (cloneState[s].length && !cloneState[s]?.includes(item[s])) {
+
+
                             checkItem = false;
+                            // if (col.dataIndex === s) {
+                            //     if (!cloneState[s]?.includes(item[s])) {
+                            //         checkItem = false;
+                            //     }
+                            //
+                            // } else {
+                            //     if (!item[s]?.includes(cloneState[s])) {
+                            //         checkItem = false;
+                            //     }
+                            // }
+
                         }
                     });
 
                     return checkItem;
                 })
-                ?.map((record) => record[col.dataIndex])
-                ?.filter((value, index, self) => self.indexOf(value) === index);
-            console.log(`[Debug - result]:`, result);
-            return result?.filter((i) => !!i);
+                .map((record) =>
+
+                    col.dateType ? moment(record[col.dataIndex], dateTypeInput).format( col.dateType) :
+
+                    record[col.dataIndex])
+                .filter((value, index, self) =>
+                {
+                return      self.indexOf(value) === index
+                }
+
+                   );
+            console.log(result)
+            return result;
         },
 
         [state]
     );
-
 
     return (
         <Table
@@ -395,9 +422,17 @@ const TableComponent = (props) => {
                     },
                     onFilter: (value, record) => {
                         if (typeof value === "string") {
-                            return record[col.dataIndex]
-                                ?.toLowerCase()
-                                ?.includes(value?.toLowerCase());
+                            if(col.dateType) {
+
+                                return moment(record[col.dataIndex], dateTypeInput).format( col.dateType)
+                                    .toLowerCase()
+                                    .includes(value.toLowerCase());
+                            }else {
+                                return record[col.dataIndex]
+                                    .toLowerCase()
+                                    .includes(value.toLowerCase());
+                            }
+
                         }
                         if (!Number.isNaN(record[col.dataIndex])) {
                             return record[col.dataIndex] === value;
