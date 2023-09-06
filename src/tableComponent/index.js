@@ -181,9 +181,7 @@ const TableComponent = (props) => {
                         }
                         break
                     default:
-
                         break
-
                 }
             }
 
@@ -302,10 +300,7 @@ const TableComponent = (props) => {
         if (tableData.length > 0) {
             const cols = setUpCols(columns)
             setColumns(cols)
-
         }
-
-
     }, [filter]);
 
 
@@ -318,7 +313,31 @@ const TableComponent = (props) => {
     };
     const [state, setState] = useState({});
     const cols = useMemo(() => {
-        return columns.map((col) => {
+
+        const columnss = [...columns]
+        let colss = []
+        if (props.showIndex && columnss[0].dataIndex !== 'index') {
+            colss = [{
+                title: 'STT',
+                dataIndex: 'index',
+                fixed: 'left',
+                key: 'index',
+                width: 50,
+                children : [
+                    {
+                        title: <Text type="danger">Total</Text>,
+                        align : 'left',
+                        dataIndex: 'index',
+                        width: 50,
+                    }
+                ]
+            }].concat(columnss)
+        } else {
+            colss = columnss
+        }
+
+
+        return colss.map((col) => {
             if (col.dateType) {
                 return {
                     ...col,
